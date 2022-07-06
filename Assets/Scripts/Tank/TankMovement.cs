@@ -17,7 +17,11 @@ public class TankMovement : MonoBehaviour
     private Rigidbody m_Rigidbody;         
     private float m_MovementInputValue;    
     private float m_TurnInputValue;        
-    private float m_OriginalPitch;         
+    private float m_OriginalPitch;     
+
+    // Additional variables to control dashing    
+    private string m_Dash;
+    bool isDashing;
 
 
     private void Awake()
@@ -45,6 +49,9 @@ public class TankMovement : MonoBehaviour
         m_MovementAxisName = "Vertical" + m_PlayerNumber;
         m_TurnAxisName = "Horizontal" + m_PlayerNumber;
 
+        // Take the input from input managers
+        m_Dash = "Dash" + m_PlayerNumber;
+
         m_OriginalPitch = m_MovementAudio.pitch;
     }
 
@@ -54,6 +61,10 @@ public class TankMovement : MonoBehaviour
         m_MovementInputValue = Input.GetAxis(m_MovementAxisName);
         m_TurnInputValue = Input.GetAxis(m_TurnAxisName);
 
+        // Takes the "space" input originally for fire to become dash
+        if (Input.GetButtonDown(m_Dash)){
+            isDashing = true;
+        }
         EngineAudio ();
     }
 
@@ -72,12 +83,22 @@ public class TankMovement : MonoBehaviour
         }
     }
 
+    // Define a dashing function to move player forward with a force
+    private void Dashing(){
+        m_Rigidbody.AddForce(transform.forward * 10, ForceMode.Impulse);
+        isDashing = false;
+    }
 
     private void FixedUpdate()
     {
         // Move and turn the tank.
         Move();
         Turn();
+        
+        // Called in fixedupdate periodically
+        if (isDashing){
+            Dashing();
+        }
     }
 
 

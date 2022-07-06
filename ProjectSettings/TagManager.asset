@@ -3,7 +3,11 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Red Tank
+  - Blue Tank
+  - Green Tank
+  - Orange Tank
   layers:
   - Default
   - TransparentFX

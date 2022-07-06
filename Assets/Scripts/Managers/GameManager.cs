@@ -21,7 +21,9 @@ public class GameManager : MonoBehaviour
     private WaitForSeconds m_StartWait;         
     private WaitForSeconds m_EndWait;           
     private TankManager m_RoundWinner;          
-    private TankManager m_GameWinner;           
+    private TankManager m_GameWinner;     
+  
+    bool rPressed = false;
 
 
     private void Start()
@@ -31,10 +33,18 @@ public class GameManager : MonoBehaviour
 
         SpawnAllTanks();
         SetCameraTargets();
-
         StartCoroutine(GameLoop());
     }
 
+    private void Update()
+    {
+        // In the update function check if r is pressed
+        if (Input.GetKeyDown("r") )
+        {
+            // if yes, set variable to true, to be checked by coroutine after each yield
+            rPressed = true;
+        }
+    }
 
     private void SpawnAllTanks()
     {
@@ -52,7 +62,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-
     private void SetCameraTargets()
     {
         Transform[] targets = new Transform[m_Tanks.Length];
@@ -62,7 +71,6 @@ public class GameManager : MonoBehaviour
 
         m_CameraControl.m_Targets = targets;
     }
-
 
     private IEnumerator GameLoop()
     {
@@ -74,7 +82,6 @@ public class GameManager : MonoBehaviour
         else StartCoroutine(GameLoop());
     }
 
-
     private IEnumerator RoundStarting()
     {
         ResetAllTanks();
@@ -83,11 +90,26 @@ public class GameManager : MonoBehaviour
         m_CameraControl.SetStartPositionAndSize();
 
         m_RoundNumber++;
-        m_MessageText.text = $"ROUND {m_RoundNumber}";
 
-        yield return m_StartWait;
+        // Defines a UI counter here to feedback to player how much more time to next round
+        int counter = (int) m_StartDelay;
+        m_MessageText.text = $"ROUND {m_RoundNumber} \n {counter} \n press 'R' to begin";
+        while (counter > 0){
+            if (rPressed) 
+            {
+                // if r was detected in Update(), reset r to false and immediately end coroutine to start round
+                rPressed = false;
+                Debug.Log("R is pressed");
+                yield break;
+            }
+            // if not then wait for the remaining number of seconds while updating the message
+            yield return new WaitForSeconds(1);
+            counter --;
+            m_MessageText.text = $"ROUND {m_RoundNumber} \n {counter} \n press 'R' to begin";
+        }
+        // wait 1 more second for completeness
+        yield return new WaitForSeconds(1);
     }
-
 
     private IEnumerator RoundPlaying()
     {
@@ -111,9 +133,26 @@ public class GameManager : MonoBehaviour
         m_GameWinner = GetGameWinner();
 
         string message = EndMessage();
-        m_MessageText.text = message;
 
-        yield return m_EndWait;
+        // Defines a UI counter here to feedback to player how much more time to next round
+        int counter = (int) m_EndDelay;
+        m_MessageText.text = message + $"\n Round restarts in {counter} \n or press 'R' to start next round ";
+        while (counter > 0){
+            if (rPressed) 
+            {
+                // if r was detected in Update(), reset r to false and immediately end coroutine to start round
+                rPressed = false;
+                Debug.Log("R is pressed");
+                yield break;
+            }
+            // if not then wait for the remaining number of seconds while updating the message
+            yield return new WaitForSeconds(1);
+            counter --;
+            message = message + $"\n Round restarts in {counter} \n or press 'R' to start next round";
+            m_MessageText.text = message;
+        }
+        // wait 1 more second for completeness
+        yield return new WaitForSeconds(1);
     }
 
 
@@ -169,6 +208,7 @@ public class GameManager : MonoBehaviour
         if (m_GameWinner != null)
             sb.Append($"{m_GameWinner.m_ColoredPlayerText} WINS THE GAME!");
 
+        // Implementation here
         return sb.ToString();
     }
 

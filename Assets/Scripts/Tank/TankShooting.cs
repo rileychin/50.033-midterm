@@ -51,12 +51,12 @@ public class TankShooting : MonoBehaviour
             m_ShootingAudio.clip = m_ChargingClip;
             m_ShootingAudio.Play();
         }
-        else if (Input.GetButton(m_FireButton) && !m_Fired)
+        else if ((Input.GetButton(m_FireButton) && !m_Fired))
         {
             m_CurrentLaunchForce += m_ChargeSpeed * Time.deltaTime;
             m_AimSlider.value = m_CurrentLaunchForce;
         }
-        else if (Input.GetButtonUp(m_FireButton) && !m_Fired)
+        else if ((Input.GetButtonUp(m_FireButton) && !m_Fired))
         {
             Fire(m_CurrentLaunchForce, 1);
         }

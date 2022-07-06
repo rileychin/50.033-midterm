@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
+using System.Collections.Generic;
 
 public class TankHealth : MonoBehaviour
 {
@@ -9,6 +11,7 @@ public class TankHealth : MonoBehaviour
     public Color m_FullHealthColor = Color.green;  
     public Color m_ZeroHealthColor = Color.red;    
     public GameObject m_ExplosionPrefab;
+    public AudioSource m_lowHpAudio; // Audio source to play low hp warning
     
     private AudioSource m_ExplosionAudio;          
     private ParticleSystem m_ExplosionParticles;   
@@ -39,6 +42,19 @@ public class TankHealth : MonoBehaviour
         m_CurrentHealth -= amount;
 
         SetHealthUI();
+
+        // Check to initiate blinking health if current hp is half of max hp
+        if (m_CurrentHealth <= m_StartingHealth / 2) 
+        {
+            StartCoroutine(Health_flicker());
+
+            // Applicable only to player, where I've attached the Audio Source
+            if (m_lowHpAudio != null)
+            {
+                // Play audio to warn player
+                m_lowHpAudio.Play();
+            }
+        }
         if (m_CurrentHealth <= 0f && !m_Dead) OnDeath();
     }
 
@@ -62,5 +78,16 @@ public class TankHealth : MonoBehaviour
         m_ExplosionAudio.Play();
 
         gameObject.SetActive(false);
+    }
+
+    // Coroutine to periodically flicker hp visually
+    IEnumerator Health_flicker()
+    {
+        while(true){
+            m_FillImage.color = Color.Lerp(m_ZeroHealthColor, m_FullHealthColor, m_CurrentHealth / m_StartingHealth);
+            yield return new WaitForSeconds(.1f);
+            m_FillImage.color = Color.white;
+            yield return new WaitForSeconds(.1f);
+        }
     }
 }
