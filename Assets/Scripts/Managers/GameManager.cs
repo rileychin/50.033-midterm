@@ -148,8 +148,7 @@ public class GameManager : MonoBehaviour
             // if not then wait for the remaining number of seconds while updating the message
             yield return new WaitForSeconds(1);
             counter --;
-            message = message + $"\n Round restarts in {counter} \n or press 'R' to start next round";
-            m_MessageText.text = message;
+            m_MessageText.text = message + $"\n Round restarts in {counter} \n or press 'R' to start next round";
         }
         // wait 1 more second for completeness
         yield return new WaitForSeconds(1);
@@ -208,7 +207,6 @@ public class GameManager : MonoBehaviour
         if (m_GameWinner != null)
             sb.Append($"{m_GameWinner.m_ColoredPlayerText} WINS THE GAME!");
 
-        // Implementation here
         return sb.ToString();
     }
 
